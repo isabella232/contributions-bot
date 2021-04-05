@@ -20,7 +20,7 @@ This bot is currently structured for PostHog use only, so uses a lot of hardcode
 ## Motivation
 
 [![powered by bot](contributors-page.png)](https://posthog.com/contributors)
-<center><small>Among a lot of other things, this bot powers our contributors page at PostHog</small></center>
+_Among a lot of other things, this bot powers our contributors page at PostHog_
 
 <br />
 
