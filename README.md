@@ -17,13 +17,18 @@ This bot is currently structured for PostHog use only, so uses a lot of hardcode
 - Lacks tests for new functionality
 - Follows the existing code patterns of `all-contributors/app`
 - Was the product of a one-person effort to ship a working bot in a short amount of time
-### Motivation
+## Motivation
+
+[![powered by bot](contributors-page.png)](https://posthog.com/contributors)
+<center><small>Among a lot of other things, this bot powers our contributors page at PostHog</small></center>
+
+<br />
 
 The original All Contributors GitHub app (bot) allows users to tag the bot somewhere on a repo and request that a contributor be added to that repo's README. 
 
 This bot, however, does **a lot** more. Here are some notable modifications:
 
-#### Functionality
+### Functionality
 
 - Automatic PR to add a user to the README following a merged contribution
 - Organization-wide access with a centralized repo to host the contributors 
@@ -35,7 +40,7 @@ This bot, however, does **a lot** more. Here are some notable modifications:
 - Filtering of organization members from being added as contributors/receiving merch
 - Different way of listing contributors on the README (handled by `@posthog/all-contributors-cli`)
 - Sends events to PostHog when there are new contributions
-#### Architecture
+### Architecture
 
 - PostgreSQL connection for handling gift cards and contribution levels 
 - Mailgun connection for sending emails
@@ -46,13 +51,13 @@ This bot, however, does **a lot** more. Here are some notable modifications:
 - More control over the Probot server and safer shutdowns
 - `app.json` for Heroku deployment
 
-#### Semantics
+### Semantics
 
 - Users can mention the bot by tagging @posthog-bot instead of @all-contributors
 - PR to add contributors comes from @posthog-contributions-bot
 - PostHog-specific replies to messages, PR titles, and PR descriptions
 
-#### Code Quality
+### Code Quality
 
 - "PostHog-standard" `prettier` formatting
 
