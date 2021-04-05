@@ -46,7 +46,7 @@ This bot, however, does **a lot** more. Here are some notable modifications:
 - Mailgun connection for sending emails
 - GitHub API connection for checking list of organization members
 - PostHog connection for sending events when there are new contributions
-- Webhook also handles `pull_request.closed` events in addition to `issue_comment.created`
+- Server also handles `pull_request.closed` events in addition to `issue_comment.created`
 - Additional logging and alert emails 
 - More control over the Probot server and safer shutdowns
 - `app.json` for Heroku deployment
