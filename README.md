@@ -1,4 +1,4 @@
-# PostHog Contributions Bot
+# 🤖 PostHog Contributions Bot
 
 ![hero image](./readme.png)
 
