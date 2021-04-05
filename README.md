@@ -122,7 +122,7 @@ CREATE TABLE gift_cards(
 	username CHAR(40),
 	PRIMARY KEY(token),
 	CONSTRAINT fk_username
-    FOREIGN KEY(username) 
+    	  FOREIGN KEY(username) 
 	  REFERENCES contributors(username)
 );
 ```
