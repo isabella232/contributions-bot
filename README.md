@@ -4,7 +4,7 @@
 
 ## Credit where credit is due
 
-Big thanks to [All Contributors](https://allcontributors.org/) for the foundations of this bot.
+Big thanks to [All Contributors](https://allcontributors.org/) for the basic foundations of this bot.
 
 ## What this is
 
