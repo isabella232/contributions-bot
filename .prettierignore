@@ -1,0 +1,5 @@
+*.md
+*.lock
+node_modules/
+.github
+public/
