@@ -4,7 +4,7 @@
 
 ## Credit where credit is due
 
-Big thanks to [All Contributors](https://allcontributors.org/) for the foundations of this bot.
+Big thanks to [All Contributors](https://allcontributors.org/) for the basic foundations of this bot.
 
 ## What this is
 
@@ -122,7 +122,7 @@ CREATE TABLE gift_cards(
 	username CHAR(40),
 	PRIMARY KEY(token),
 	CONSTRAINT fk_username
-    FOREIGN KEY(username) 
+    	  FOREIGN KEY(username) 
 	  REFERENCES contributors(username)
 );
 ```
