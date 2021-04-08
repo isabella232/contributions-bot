@@ -40,6 +40,7 @@ This bot, however, does **a lot** more. Here are some notable modifications:
 - Filtering of organization members from being added as contributors/receiving merch
 - Different way of listing contributors on the README (handled by `@posthog/all-contributors-cli`)
 - Sends events to PostHog when there are new contributions
+- Automerge on bot PRs to add contributors
 ### Architecture
 
 - PostgreSQL connection for handling gift cards and contribution levels 
