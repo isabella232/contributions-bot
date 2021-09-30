@@ -50,15 +50,23 @@ class ProbotServer {
 }
 
 async function handleGeneralMessage(context) {
+    // Nag about issue being too long
     console.log(`Context: ${JSON.stringify(context, undefined, 4)}`)
     const allComments = await context.octokit.issues.listComments({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
         issue_number: context.payload.issue.number,
-    })
+    }).data
+    
     console.log(`Got comments: ${JSON.stringify(allComments, undefined, 4)}`)
-    const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
+    if (filteredComments.some(comment=>comment.body?.includes('Issues this long'))) {
+        // The bot has already sent a message like this
+        return
+    }
+
+    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
+        console.log(`${filteredComments.length} comments is too many`)
         const commentReply = new CommentReply(context)
         commentReply.reply(
         `This issue has **${filteredComments.length}** comments. Issues this long are very hard to read _or_ to contribute to, and tend to take very long to reach a conclusion. Instead, why not:
@@ -67,7 +75,9 @@ async function handleGeneralMessage(context) {
 3. **Create a request for comments** in the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
         )
         await commentReply.send(true)
-    } 
+    } else {
+        console.log(`${filteredComments.length} comment${filteredComments.length === 1 ? '' : 's'} is fine`)
+    }
 }
 
 async function handleMessageIntendedForBot(context) {
