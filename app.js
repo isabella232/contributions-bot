@@ -60,7 +60,7 @@ async function handleGeneralMessage(context) {
 2. **Have a sync meeting** to reach a conclusion
 3. **Create a request for comments** in the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
         )
-        commentReply.send(true)
+        await commentReply.send(true)
     } 
 }
 
@@ -100,13 +100,13 @@ async function handleMessageIntendedForBot(context) {
     }
 }
 
-const probotServer = new ProbotServer((app) => {
+const probotServer = new ProbotServer( (app) => {
     app.on('issue_comment.created', async (context) => {
         if (isMessageByApp(context)) return
         if (isMessageForApp(context)) {
-            handleMessageIntendedForBot(context)
+            await handleMessageIntendedForBot(context)
         } else {
-            handleGeneralMessage(context)
+            await handleGeneralMessage(context)
         }
     })
 
