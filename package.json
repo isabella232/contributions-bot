@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "@posthog/all-contributors-cli": "0.0.1",
+        "@sentry/node": "^6.13.2",
         "compromise": "^11.13.0",
         "mailgun-js": "^0.22.0",
         "node-fetch": "^2.6.1",

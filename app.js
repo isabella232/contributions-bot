@@ -8,6 +8,16 @@ const { OrganizationMembers } = require('./lib/organization-members')
 const { Database } = require('./lib/database')
 const { Pool } = require('pg')
 const probot = require('probot')
+const Sentry = require("@sentry/node");
+
+Sentry.init({
+    dsn: "https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857",
+  
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+  });
 
 /** At how many comments should the bot complain about the issue dragging on. */
 const ISSUE_TOO_LONG_COMMENTS_TRESHOLD = 10
