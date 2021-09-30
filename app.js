@@ -54,7 +54,7 @@ async function handleGeneralMessage(context) {
     const allComments = await context.octokit.issues.listComments({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
-        pull_number: context.payload.issue.number,
+        issue_number: context.payload.issue.number,
     })
     console.log(`Got comments: ${JSON.stringify(allComments, undefined, 4)}`)
     const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
