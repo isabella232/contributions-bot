@@ -61,7 +61,7 @@ async function handleGeneralMessage(context) {
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
         const commentReply = new CommentReply(context)
         commentReply.reply(
-        `This issue has **${comment_count}** comments. Issues this long are very hard to read _or_ to contribute to, and tend to take very long to reach a conclusion. Instead, why not:
+        `This issue has **${filteredComments.length}** comments. Issues this long are very hard to read _or_ to contribute to, and tend to take very long to reach a conclusion. Instead, why not:
 1. Write some code and **submit a pull request**! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
 3. **Create a request for comments** in the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
