@@ -50,7 +50,7 @@ class ProbotServer {
 }
 
 async function handleGeneralMessage(context) {
-    const allComments = await context.octokit.issues.listComments()
+    const allComments = await context.octokit.issues.listComments({ repo: context.payload.repository.name, owner: context.payload.owner.name })
     const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
         const commentReply = new CommentReply(context)
@@ -102,6 +102,7 @@ async function handleMessageIntendedForBot(context) {
 
 const probotServer = new ProbotServer( (app) => {
     app.on('issue_comment.created', async (context) => {
+        Sentry.setContext('payload', context.payload)
         if (isMessageByApp(context)) return
         if (isMessageForApp(context)) {
             await handleMessageIntendedForBot(context)
@@ -111,6 +112,7 @@ const probotServer = new ProbotServer( (app) => {
     })
 
     app.on('pull_request.closed', async (context) => {
+        Sentry.setContext('payload', context.payload)
         const pullRequest = context.payload.pull_request
 
         const repoOwner = pullRequest.base.repo.owner.login
@@ -156,6 +158,7 @@ const probotServer = new ProbotServer( (app) => {
     })
 
     app.on(['installation', 'installation_repositories'], async ({ name, payload, log }) => {
+        Sentry.setContext('payload', context.payload)
         const { action, repositories, repositories_added, repositories_removed, installation } = payload
 
         const repositoriesChange =
