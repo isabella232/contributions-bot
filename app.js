@@ -9,6 +9,9 @@ const { Database } = require('./lib/database')
 const { Pool } = require('pg')
 const probot = require('probot')
 
+/** At how many comments should the bot complain about the issue dragging on. */
+const ISSUE_TOO_LONG_COMMENTS_TRESHOLD = 10
+
 const postgresPool = process.env.DEBUG
     ? new Pool({ database: 'ph-allc' })
     : new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
@@ -36,43 +39,64 @@ class ProbotServer {
     }
 }
 
+function handleGeneralMessage(context) {
+    const allComments = await context.octokit.issues.listComments()
+    const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
+    if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
+        const commentReply = new CommentReply(context)
+        commentReply.reply(
+        `This issue has **${comment_count}** comments. Issues this long are very hard to read _or_ to contribute to, and tend to take very long to reach a conclusion. Instead, why not:
+1. Write some code and **submit a pull request**! Code wins arguments
+2. **Have a sync meeting** to reach a conclusion
+3. **Create a request for comments** in the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
+        )
+        commentReply.send(true)
+    } 
+}
+
+function handleMessageIntendedForBot(context) {
+    const members = await organizationMembers.getOrganizationMembers()
+
+    // Only org members can request contributors be added
+    const userWhoWroteComment = context.payload.sender.login
+
+    if (userWhoWroteComment !== 'yakkomajuri' && !members.has(userWhoWroteComment)) {
+        return
+    }
+
+    const repoOwner = context.payload.repository.owner.login
+
+    if (process.env.ALLOWED_ORGS && !process.env.ALLOWED_ORGS.split(',').includes(repoOwner)) {
+        return
+    }
+
+
+    // process comment and reply
+    const commentReply = new CommentReply(context)
+    try {
+        await processIssueComment({ context, commentReply, db })
+    } catch (error) {
+        const isKnownError = error instanceof AllContributorBotError
+        if (!isKnownError) {
+            commentReply.reply(`We had trouble processing your request. Please try again later.`)
+
+            throw error
+        }
+
+        context.log.info({ isKnownError, error: error.name }, error.message)
+        commentReply.reply(error.message)
+    } finally {
+        await commentReply.send()
+    }
+}
+
 const probotServer = new ProbotServer((app) => {
     app.on('issue_comment.created', async (context) => {
         if (isMessageByApp(context)) return
-        if (!isMessageForApp(context)) return
-
-        const members = await organizationMembers.getOrganizationMembers()
-
-        // Only org members can request contributors be added
-        const userWhoWroteComment = context.payload.sender.login
-
-        if (userWhoWroteComment !== 'yakkomajuri' && !members.has(userWhoWroteComment)) {
-            return
-        }
-
-        const repoOwner = context.payload.repository.owner.login
-
-        if (process.env.ALLOWED_ORGS && !process.env.ALLOWED_ORGS.split(',').includes(repoOwner)) {
-            return
-        }
-
-
-        // process comment and reply
-        const commentReply = new CommentReply(context)
-        try {
-            await processIssueComment({ context, commentReply, db })
-        } catch (error) {
-            const isKnownError = error instanceof AllContributorBotError
-            if (!isKnownError) {
-                commentReply.reply(`We had trouble processing your request. Please try again later.`)
-
-                throw error
-            }
-
-            context.log.info({ isKnownError, error: error.name }, error.message)
-            commentReply.reply(error.message)
-        } finally {
-            await commentReply.send()
+        if (isMessageForApp(context)) {
+            handleMessageIntendedForBot(context)
+        } else {
+            handleGeneralMessage(context)
         }
     })
 
