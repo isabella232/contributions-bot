@@ -50,7 +50,9 @@ class ProbotServer {
 }
 
 async function handleGeneralMessage(context) {
-    const allComments = await context.octokit.issues.listComments({ repo: context.payload.repository.name, owner: context.payload.owner.name })
+    const allComments = await context.octokit.issues.listComments()
+    console.log(`Context: ${JSON.stringify(context, undefined, 4)}`)
+    console.log(`Got comments: ${JSON.stringify(allComments, undefined, 4)}`)
     const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
         const commentReply = new CommentReply(context)
