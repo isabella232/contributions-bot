@@ -51,10 +51,15 @@ class ProbotServer {
 
 async function handleGeneralMessage(context) {
     // Nag about issue being too long
+    if (context.payload.issue.url.includes('/pull/')) {
+        console.log('Not nagging in a PR, only issues')
+        return
+    }
     const allCommentsResponse = await context.octokit.issues.listComments({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
         issue_number: context.payload.issue.number,
+        per_page: 100
     })
 
     const allComments = allCommentsResponse.data
