@@ -59,12 +59,13 @@ async function handleGeneralMessage(context) {
     }).data
     
     console.log(`Got comments: ${JSON.stringify(allComments, undefined, 4)}`)
+
+    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
     if (filteredComments.some(comment=>comment.body?.includes('Issues this long'))) {
-        // The bot has already sent a message like this
+        console.log('The bot has already sent a message like this')
         return
     }
 
-    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
         console.log(`${filteredComments.length} comments is too many`)
         const commentReply = new CommentReply(context)
