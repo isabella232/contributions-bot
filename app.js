@@ -51,21 +51,18 @@ class ProbotServer {
 
 async function handleGeneralMessage(context) {
     // Nag about issue being too long
-    console.log(`Context: ${JSON.stringify(context, undefined, 4)}`)
     const allCommentsResponse = await context.octokit.issues.listComments({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
         issue_number: context.payload.issue.number,
     })
 
-    console.log(`Got comments response: ${JSON.stringify(allCommentsResponse, undefined, 4)}`)
-
     const allComments = allCommentsResponse.data
-    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
-    if (filteredComments.some(comment=>comment.body?.includes('Issues this long'))) {
+    if (allComments.some(comment=>comment.body?.includes('Issues this long'))) {
         console.log('The bot has already sent a message like this')
         return
     }
+    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
 
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
         console.log(`${filteredComments.length} comments is too many`)
