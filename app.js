@@ -39,7 +39,7 @@ class ProbotServer {
     }
 }
 
-function handleGeneralMessage(context) {
+async function handleGeneralMessage(context) {
     const allComments = await context.octokit.issues.listComments()
     const filteredComments = allComments.data.filter(comment => !comment.user || !comment.user.login.includes('[bot]'))
     if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
@@ -54,7 +54,7 @@ function handleGeneralMessage(context) {
     } 
 }
 
-function handleMessageIntendedForBot(context) {
+async function handleMessageIntendedForBot(context) {
     const members = await organizationMembers.getOrganizationMembers()
 
     // Only org members can request contributors be added
