@@ -12,15 +12,10 @@ const Sentry = require("@sentry/node");
 
 Sentry.init({
     dsn: "https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857",
-  
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-  });
+})
 
-/** At how many comments should the bot complain about the issue dragging on. */
-const ISSUE_TOO_LONG_COMMENTS_TRESHOLD = 10
+/** At how many words should the bot complain about the issue dragging on. */
+const ISSUE_TOO_LONG_WORDS_THRESHOLD = 1000
 
 const postgresPool = process.env.DEBUG
     ? new Pool({ database: 'ph-allc' })
@@ -68,19 +63,20 @@ async function handleGeneralMessage(context) {
         return
     }
     const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
+    const filteredCommentsWords = filteredComments.map(comment=>comment.body || '').join('\n').split(/\s/).filter(Boolean)
 
-    if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_TRESHOLD) {
-        console.log(`${filteredComments.length} comments is too many`)
+    if (filteredCommentsWords.length >= ISSUE_TOO_LONG_WORDS_THRESHOLD) {
+        console.log(`${filteredCommentsWords.length} words is too many`)
         const commentReply = new CommentReply(context)
         commentReply.reply(
-        `This issue has **${filteredComments.length}** comments. Issues this long are very hard to read _or_ to contribute to, and tend to take very long to reach a conclusion. Instead, why not:
-1. Write some code and **submit a pull request**! Code wins arguments
+        `This issue has **${filteredCommentsWords.length}** words. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
+1. **Write some code** and submit a pull request! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
-3. **Create a request for comments** in the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
+3. **Create a Request for Comments** and submit a PR with it to the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
         )
         await commentReply.send(true)
     } else {
-        console.log(`${filteredComments.length} comment${filteredComments.length === 1 ? '' : 's'} is fine`)
+        console.log(`${filteredCommentsWords.length} word${filteredCommentsWords.length === 1 ? '' : 's'} is fine`)
     }
 }
 
