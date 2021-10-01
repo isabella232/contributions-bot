@@ -50,6 +50,10 @@ async function handleGeneralMessage(context) {
         console.log('Not nagging in a PR, only issues')
         return
     }
+    if (context.payload.issue.labels.includes('epic')) {
+        console.log('Not nagging in epics')
+        return
+    }
     const allCommentsResponse = await context.octokit.issues.listComments({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
