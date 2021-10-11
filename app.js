@@ -15,7 +15,8 @@ Sentry.init({
 })
 
 /** At how many words should the bot complain about the issue dragging on. */
-const ISSUE_TOO_LONG_WORDS_THRESHOLD = 1000
+const ISSUE_TOO_LONG_WORDS_THRESHOLD = 2000
+const SPRAWLING_ISSUE_LABELS = ['epic', 'sprint']
 
 const postgresPool = process.env.DEBUG
     ? new Pool({ database: 'ph-allc' })
@@ -44,14 +45,14 @@ class ProbotServer {
     }
 }
 
+/** Nag about issue being too long */
 async function handleGeneralMessage(context) {
-    // Nag about issue being too long
     if (context.payload.issue.url.includes('/pull/')) {
         console.log('Not nagging in a PR, only issues')
         return
     }
-    if (context.payload.issue.labels.includes('epic')) {
-        console.log('Not nagging in epics')
+    if (SPRAWLING_ISSUE_LABELS.some((label) => context.payload.issue.labels.includes(label))) {
+        console.log('Not nagging due to relevant label')
         return
     }
     const allCommentsResponse = await context.octokit.issues.listComments({
@@ -74,9 +75,12 @@ async function handleGeneralMessage(context) {
         const commentReply = new CommentReply(context)
         commentReply.reply(
         `This issue has **${filteredCommentsWords.length}** words. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
-1. **Write some code** and submit a pull request! Code wins arguments
+
+        1. **Write some code** and submit a pull request! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
-3. **Create a Request for Comments** and submit a PR with it to the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)`
+3. **Create a Request for Comments** and submit a PR with it to the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)
+
+Is this issue _intended_ to be sprawling? Consider adding label ${SPRAWLING_ISSUE_LABELS.map((label) => '`' + label + '`').join(' or ')} – such issues are given leeway.`
         )
         await commentReply.send(true)
     } else {
