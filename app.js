@@ -14,8 +14,11 @@ Sentry.init({
     dsn: "https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857",
 })
 
-/** At how many words should the bot complain about the issue dragging on. */
+/** What's the minimum issue word count for the bot to complaing about the issue dragging on. */
 const ISSUE_TOO_LONG_WORDS_THRESHOLD = 2000
+/** What's the minimum comment count for the bot to complaing about the issue dragging on. */
+const ISSUE_TOO_LONG_COMMENTS_THRESHOLD = 5
+/** Issues with at least one of these labels will be ignored regarding dragging on. */
 const SPRAWLING_ISSUE_LABELS = ['epic', 'sprint']
 
 const postgresPool = process.env.DEBUG
@@ -70,11 +73,11 @@ async function handleGeneralMessage(context) {
     const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
     const filteredCommentsWords = filteredComments.map(comment=>comment.body || '').join('\n').split(/\s/).filter(Boolean)
 
-    if (filteredCommentsWords.length >= ISSUE_TOO_LONG_WORDS_THRESHOLD) {
+    if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_THRESHOLD && filteredCommentsWords.length >= ISSUE_TOO_LONG_WORDS_THRESHOLD) {
         console.log(`${filteredCommentsWords.length} words is too many`)
         const commentReply = new CommentReply(context)
         commentReply.reply(
-        `This issue has **${filteredCommentsWords.length}** words. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
+        `This issue has **${filteredCommentsWords.length} words** at **${filteredComments.length} comments**. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
 
         1. **Write some code** and submit a pull request! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
