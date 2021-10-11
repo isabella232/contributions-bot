@@ -8,10 +8,10 @@ const { OrganizationMembers } = require('./lib/organization-members')
 const { Database } = require('./lib/database')
 const { Pool } = require('pg')
 const probot = require('probot')
-const Sentry = require("@sentry/node");
+const Sentry = require('@sentry/node')
 
 Sentry.init({
-    dsn: "https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857",
+    dsn: 'https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857',
 })
 
 /** What's the minimum issue word count for the bot to complaing about the issue dragging on. */
@@ -62,28 +62,39 @@ async function handleGeneralMessage(context) {
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
         issue_number: context.payload.issue.number,
-        per_page: 100
+        per_page: 100,
     })
 
     const allComments = allCommentsResponse.data
-    if (allComments.some(comment=>comment.body?.includes('Issues this long'))) {
+    if (allComments.some((comment) => comment.body?.includes('Issues this long'))) {
         console.log('The bot has already sent a message like this')
         return
     }
-    const filteredComments = allComments.filter(comment => !comment.user || !comment.user.login.endsWith('[bot]'))
-    const filteredCommentsWords = filteredComments.map(comment=>comment.body || '').join('\n').split(/\s/).filter(Boolean)
+    const filteredComments = allComments.filter((comment) => !comment.user || !comment.user.login.endsWith('[bot]'))
+    const filteredCommentsWords = filteredComments
+        .map((comment) => comment.body || '')
+        .join('\n')
+        .split(/\s/)
+        .filter(Boolean)
 
-    if (filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_THRESHOLD && filteredCommentsWords.length >= ISSUE_TOO_LONG_WORDS_THRESHOLD) {
+    if (
+        filteredComments.length >= ISSUE_TOO_LONG_COMMENTS_THRESHOLD &&
+        filteredCommentsWords.length >= ISSUE_TOO_LONG_WORDS_THRESHOLD
+    ) {
         console.log(`${filteredCommentsWords.length} words is too many`)
         const commentReply = new CommentReply(context)
         commentReply.reply(
-        `This issue has **${filteredCommentsWords.length} words** at **${filteredComments.length} comments**. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
+            `This issue has **${filteredCommentsWords.length} words** at **${
+                filteredComments.length
+            } comments**. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
 
         1. **Write some code** and submit a pull request! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
 3. **Create a Request for Comments** and submit a PR with it to the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)
 
-Is this issue _intended_ to be sprawling? Consider adding label ${SPRAWLING_ISSUE_LABELS.map((label) => '`' + label + '`').join(' or ')} – such issues are given leeway.`
+Is this issue _intended_ to be sprawling? Consider adding label ${SPRAWLING_ISSUE_LABELS.map(
+                (label) => '`' + label + '`'
+            ).join(' or ')} – such issues are given leeway.`
         )
         await commentReply.send(true)
     } else {
@@ -107,7 +118,6 @@ async function handleMessageIntendedForBot(context) {
         return
     }
 
-
     // process comment and reply
     const commentReply = new CommentReply(context)
     try {
@@ -127,7 +137,7 @@ async function handleMessageIntendedForBot(context) {
     }
 }
 
-const probotServer = new ProbotServer( (app) => {
+const probotServer = new ProbotServer((app) => {
     app.on('issue_comment.created', async (context) => {
         Sentry.setContext('payload', context.payload)
         if (isMessageByApp(context)) return
@@ -148,16 +158,15 @@ const probotServer = new ProbotServer( (app) => {
             return
         }
 
-
         const members = await organizationMembers.getOrganizationMembers()
         const who = pullRequest.user.login
 
         /*
-        *  Do not add contributor if:
-        *  - PR was closed but not merged
-        *  - Username is part of the PostHog org
-        *  - PR is to a non-default branch
-        */
+         *  Do not add contributor if:
+         *  - PR was closed but not merged
+         *  - Username is part of the PostHog org
+         *  - PR is to a non-default branch
+         */
         if (!pullRequest.merged || members.has(who) || !/:(main|master)/.test(pullRequest.base.label)) {
             return
         }
@@ -176,7 +185,7 @@ const probotServer = new ProbotServer( (app) => {
                 contributions: ['code'],
                 context: context,
                 pullRequestUrl: pullRequest.html_url,
-                extraMerch: pullRequestContainsLabel(pullRequest, 'extra merch')
+                extraMerch: pullRequestContainsLabel(pullRequest, 'extra merch'),
             })
         } catch (error) {
             const isKnownError = error instanceof AllContributorBotError
@@ -192,10 +201,10 @@ const probotServer = new ProbotServer( (app) => {
             action === 'created'
                 ? repositories.length
                 : action === 'deleted'
-                    ? -repositories.length
-                    : repositories_added
-                        ? repositories_added.length - repositories_removed.length
-                        : 0
+                ? -repositories.length
+                : repositories_added
+                ? repositories_added.length - repositories_removed.length
+                : 0
 
         const meta = {
             event: name,
