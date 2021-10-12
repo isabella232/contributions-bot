@@ -88,13 +88,13 @@ async function handleGeneralMessage(context) {
                 filteredComments.length
             } comments**. Issues this long are hard to read or contribute to, and tend to take very long to reach a conclusion. Instead, why not:
 
-        1. **Write some code** and submit a pull request! Code wins arguments
+1. **Write some code** and submit a pull request! Code wins arguments
 2. **Have a sync meeting** to reach a conclusion
 3. **Create a Request for Comments** and submit a PR with it to the [meta repo](https://github.com/PostHog/meta/blob/main/requests-for-comments/1970-01-01-template.md) or [product internal repo](https://github.com/PostHog/product-internal/new/main/requests-for-comments)
 
-Is this issue _intended_ to be sprawling? Consider adding label ${SPRAWLING_ISSUE_LABELS.map(
+Is this issue intended to be sprawling? Consider adding label ${SPRAWLING_ISSUE_LABELS.map(
                 (label) => '`' + label + '`'
-            ).join(' or ')} – such issues are given leeway.`
+            ).join(' or ')} to indicate this.`
         )
         await commentReply.send(true)
     } else {
