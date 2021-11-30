@@ -57,7 +57,7 @@ async function handleGeneralMessage(context) {
     if (
         SPRAWLING_ISSUE_LABELS.some(
             (label) =>
-                context.payload.issue.title.toLowerCase().split(' ').includes(label) ||
+                context.payload.issue.title.toLowerCase().includes(label) ||
                 context.payload.issue.labels.includes(label) ||
                 context.payload.issue.labels.some((subLabel) => subLabel.name === label)
         )
