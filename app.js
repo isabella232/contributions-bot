@@ -54,8 +54,15 @@ async function handleGeneralMessage(context) {
         console.log('Not nagging in a PR, only issues')
         return
     }
-    if (SPRAWLING_ISSUE_LABELS.some((label) => context.payload.issue.labels.includes(label))) {
-        console.log('Not nagging due to relevant label')
+    if (
+        SPRAWLING_ISSUE_LABELS.some(
+            (label) =>
+                context.payload.issue.title.toLowerCase().split(' ').includes(label) ||
+                context.payload.issue.labels.includes(label) ||
+                context.payload.issue.labels.some((label) => label.name === label)
+        )
+    ) {
+        console.log('Not nagging due to title/label')
         return
     }
     const allCommentsResponse = await context.octokit.issues.listComments({
