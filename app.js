@@ -1,7 +1,7 @@
 const isMessageByApp = require('./lib/is-message-by-app')
 const isMessageForApp = require('./lib/is-message-for-app')
 const CommentReply = require('./lib/modules/comment-reply')
-const { processIssueComment, processContribution } = require('./lib/process-issue-comment')
+const { processIssueComment, processContribution, remind } = require('./lib/process-issue-comment')
 const { pullRequestContainsLabel } = require('./lib/utils')
 const { AllContributorBotError } = require('./lib/modules/errors')
 const { OrganizationMembers } = require('./lib/organization-members')
@@ -9,6 +9,8 @@ const { Database } = require('./lib/database')
 const { Pool } = require('pg')
 const probot = require('probot')
 const Sentry = require('@sentry/node')
+const schedule = require('node-schedule')
+
 
 Sentry.init({
     dsn: 'https://9613246c10b542d79ff183c9a5ee218e@o1015702.ingest.sentry.io/5986857',
@@ -36,6 +38,16 @@ class ProbotServer {
     }
 
     async startServer() {
+
+        console.log("Pulling stored reminders from the database...")
+        const reminders = await db.getAllReminders()
+        for (const reminder of reminders) {
+
+            const reminderObject = reminder.reminder_object
+            const date = new Date(reminderObject.when)
+            schedule.scheduleJob(date, async () => await remind(reminderObject, reminder.id, reminder.context, db))
+        }
+
         console.log('Starting Probot server...')
         this.probotServer = await probot.run(this.app)
     }
