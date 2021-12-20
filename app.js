@@ -1,7 +1,7 @@
 const isMessageByApp = require('./lib/is-message-by-app')
 const isMessageForApp = require('./lib/is-message-for-app')
 const CommentReply = require('./lib/modules/comment-reply')
-const { processIssueComment, processContribution, remind } = require('./lib/process-issue-comment')
+const { processIssueComment, processContribution, remind, reminderIdToJob } = require('./lib/process-issue-comment')
 const { pullRequestContainsLabel } = require('./lib/utils')
 const { AllContributorBotError } = require('./lib/modules/errors')
 const { OrganizationMembers } = require('./lib/organization-members')
@@ -40,12 +40,13 @@ class ProbotServer {
     async startServer() {
 
         console.log("Pulling stored reminders from the database...")
-        const reminders = await db.getAllReminders()
+        const reminders = await db.getReminders()
         for (const reminder of reminders) {
 
             const reminderObject = reminder.reminder_object
             const date = new Date(reminderObject.when)
-            schedule.scheduleJob(date, async () => await remind(reminderObject, reminder.id, reminder.context, db))
+            const job = schedule.scheduleJob(date, async () => await remind(reminderObject, reminder.id, reminder.context, db))
+            reminderIdToJob[reminder.id] = job
         }
 
         console.log('Starting Probot server...')

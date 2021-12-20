@@ -140,7 +140,17 @@ This table on our production bot has been loaded with hundreds of randomly-gener
 CREATE TABLE schedule(
    	id  SERIAL PRIMARY KEY,
 	reminder_object JSONB NOT NULL,
-	context JSONB NOT NULL
+	context JSONB NOT NULL,
+	owner CHAR(40) NOT NULL
+);
+```
+
+### reminder_groups
+
+```sql
+CREATE TABLE reminder_groups(
+	group_name CHAR(40) UNIQUE NOT NULL PRIMARY KEY,
+	group_value VARCHAR NOT NULL
 );
 ```
 
