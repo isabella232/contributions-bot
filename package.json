@@ -21,9 +21,13 @@
     "dependencies": {
         "@posthog/all-contributors-cli": "0.0.1",
         "@sentry/node": "^6.13.2",
+        "chrono-node": "^2.3.4",
         "compromise": "^11.13.0",
         "mailgun-js": "^0.22.0",
+        "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
+        "node-schedule": "^2.1.0",
+        "parse-reminder": "^1.3.0",
         "pg": "^8.5.1",
         "pino": "^6.9.0",
         "posthog-node": "^1.0.7",

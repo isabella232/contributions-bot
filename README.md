@@ -91,7 +91,7 @@ DATABASE_URL
 
 > Note: Schemas are provided as a copy-paste of the creation SQL for now, while I haven't made beautiful Markdown tables for them.
 
-This bot uses a PostgreSQL database with the following 3 tables:
+This bot uses a PostgreSQL database with the following 4 tables:
 
 ### contributors
 
@@ -133,6 +133,16 @@ CREATE TABLE gift_cards(
 Same as above, except this table is used when the `USE_TEST_CODES` environment variable is set to true.
 
 This table on our production bot has been loaded with hundreds of randomly-generated test_gift_cards which aren't valid on Shopify.
+
+### schedule
+
+```sql
+CREATE TABLE schedule(
+   	id  SERIAL PRIMARY KEY,
+	reminder_object JSONB NOT NULL,
+	context JSONB NOT NULL
+);
+```
 
 ## Local Setup
 
