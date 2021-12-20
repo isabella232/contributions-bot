@@ -123,7 +123,7 @@ Is this issue intended to be sprawling? Consider adding label ${SPRAWLING_ISSUE_
 }
 
 async function handleMessageIntendedForBot(context) {
-    const members = new Set() // await organizationMembers.getOrganizationMembers()
+    const members = await organizationMembers.getOrganizationMembers()
 
     // Only org members can request contributors be added
     const userWhoWroteComment = context.payload.sender.login
